@@ -2,8 +2,12 @@ module Common_Functions
 
 using MD5
 using MPI
+using Base.Threads
 
-export get_time, measure_time_diff, nextRandomLEcuyer, randInt, ca_init_config!, calculate_md5_hash, transition, apply_transition_seq, apply_transition!, ca_mpi_init, mpi_calculate_md5_hash, boundary, boundary_seq
+export get_time, measure_time_diff, nextRandomLEcuyer, randInt, ca_init_config!,
+        calculate_md5_hash, transition, apply_transition_seq, apply_transition!,
+        ca_mpi_init, mpi_calculate_md5_hash, boundary, boundary_seq,
+        apply_transition_seq_parallel
 
 const utility_lib = "./libutility.so" 
 const XSIZE = 1024
@@ -182,6 +186,17 @@ function apply_transition_seq(from_matrix::AbstractMatrix,to_matrix::AbstractMat
 
 end
 
+
+function apply_transition_seq_parallel(from_matrix::AbstractMatrix,to_matrix::AbstractMatrix)
+
+    m, n = size(from_matrix)
+    @threads for i in 2:m-1
+        for j in 2:n-1
+            to_matrix[i, j] = transition(from_matrix, j, i)
+        end
+    end
+
+end
 
 function apply_transition!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int, end_line::Int)
 

@@ -1,7 +1,5 @@
 include("common_functions.jl")
 
-import Base.sleep
-
 using .Common_Functions
 using MPI
 
@@ -37,7 +35,6 @@ end
 
 
 #=---------- main ------------=#
-
 MPI.Init()
 
 comm = MPI.COMM_WORLD
@@ -79,8 +76,8 @@ MPI.Sendrecv!(
 )
 
 # Update ghost zones with received data
-from[1, :] = recv_buffer_upper_bound.data
-from[num_local_lines + 2, :] = recv_buffer_lower_bound.data
+from[1, :] .= recv_buffer_upper_bound.data
+from[num_local_lines + 2, :] .= recv_buffer_lower_bound.data
 
 
 # actual computation starting here
@@ -117,6 +114,7 @@ for iteration in 1:iterations
     MPI.Waitall!(requests)
 end
 stop_time = get_time()
+
 MPI.Barrier(comm)
 
 if local_rank == 0

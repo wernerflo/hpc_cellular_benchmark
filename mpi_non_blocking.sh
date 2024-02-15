@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=julia_mpi
+#SBATCH --job-name=julia_mpi_non_blocking
 #SBATCH --output=./outputs/%x.%j
 #SBATCH --error=./outputs/err.%x.%j
 #SBATCH --nodes=4 # number of nodes
@@ -13,4 +13,4 @@ module load openmpi
 
 JULIA_PATH=~/julia-1.5.3/bin
 
-mpiexec -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi.jl 33 10
+mpiexec -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi_non_blocking.jl 33 10

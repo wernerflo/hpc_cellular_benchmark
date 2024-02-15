@@ -24,7 +24,7 @@ from_matrix = ca_init_config!(from_matrix, lines, 0)
 start_time = get_time()
 for iteration in 1:iterations
     boundary_seq(from_matrix)
-    apply_transition_seq(from_matrix, to_matrix)
+    apply_transition_seq_parallel(from_matrix, to_matrix)
     global from_matrix .= to_matrix
 end
 stop_time = get_time()

@@ -79,8 +79,8 @@ MPI.Sendrecv!(
 )
 
 # Update ghost zones with received data
-from[1, :] = recv_buffer_upper_bound.data
-from[num_local_lines + 2, :] = recv_buffer_lower_bound.data
+from[1, :] .= recv_buffer_upper_bound.data
+from[num_local_lines + 2, :] .= recv_buffer_lower_bound.data
 
 
 # actual computation starting here
@@ -88,8 +88,6 @@ start_time = get_time()
 for iteration in 1:iterations
 
     boundary(from)
-
-    MPI.Barrier(comm)
 
     # Compute boundaries
     apply_transition!(from, to, 2)
@@ -118,13 +116,15 @@ for iteration in 1:iterations
     apply_transition!(from, to, 3, num_local_lines)
     
     # Update ghost zones with received data
-    to[1, :] = recv_buffer_upper_bound.data
-    to[num_local_lines + 2, :] = recv_buffer_lower_bound.data
+    to[1, :] .= recv_buffer_upper_bound.data
+    to[num_local_lines + 2, :] .= recv_buffer_lower_bound.data
 
     global from .= to
 
 end
 stop_time = get_time()
+
+MPI.Barrier(comm)
 
 if local_rank == 0
     
