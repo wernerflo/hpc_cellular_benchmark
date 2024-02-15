@@ -1,2 +1,2 @@
 using Pkg
-Pkg.add("MD5")
+Pkg.add("MPI")

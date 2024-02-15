@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=julia_seriell
+#SBATCH --job-name=julia_multithreaded
 #SBATCH --output=./outputs/%x.%j
 #SBATCH --error=./outputs/err.%x.%j
 #SBATCH --nodes=1 # number of nodes
@@ -12,4 +12,4 @@
 set -e
 JULIA_PATH=~/julia-1.5.3/bin
 
-srun $JULIA_PATH/julia ./ca_seriell.jl 33 10
+srun $JULIA_PATH/julia ./ca_multithreaded.jl 33 10
