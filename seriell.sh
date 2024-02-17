@@ -12,4 +12,4 @@
 set -e
 JULIA_PATH=~/julia-1.5.3/bin
 
-srun $JULIA_PATH/julia ./ca_seriell.jl 33 10
+srun $JULIA_PATH/julia ./ca_seriell.jl 100 10

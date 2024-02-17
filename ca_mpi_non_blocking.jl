@@ -76,8 +76,8 @@ MPI.Sendrecv!(
 )
 
 # Update ghost zones with received data
-from[1, :] .= recv_buffer_upper_bound.data
-from[num_local_lines + 2, :] .= recv_buffer_lower_bound.data
+from[1, :] = recv_buffer_upper_bound.data
+from[num_local_lines + 2, :] = recv_buffer_lower_bound.data
 
 
 # actual computation starting here
@@ -103,15 +103,19 @@ for iteration in 1:iterations
     push!(requests, MPI.Isend(send_buffer_lower_bound, succ_proc(local_rank, num_procs), TAG_SEND_LOWER_BOUND, comm))
     
     apply_transition!(from, to, 3, num_local_lines)
-    
-    # Update ghost zones with received data
-    to[1, :] .= recv_buffer_upper_bound.data
-    to[num_local_lines + 2, :] .= recv_buffer_lower_bound.data
-
-    global from .= to
 
     # Wait for the completion of receive and send operations
     MPI.Waitall!(requests)
+
+    # Update ghost zones with received data
+    to[1, :] = recv_buffer_upper_bound.data
+    to[num_local_lines + 2, :] = recv_buffer_lower_bound.data
+
+    temp = from
+    global from = to
+    global to = temp
+
+    
 end
 stop_time = get_time()
 
@@ -144,7 +148,7 @@ if local_rank == 0
     #println("Julia")
     println("Computation time: ", computation_time, "s")
     println("Hash-value: ", hash_value)
-    println("Hash-value of baseline: 4604B369CB251400EF4CFB91E9151C7E")
+    println("Hash-value of baseline: 9EE1FAB85790251CDCAE0B3160E699C3")
 
 else
     #send local buffer without upper and lower ghost zone

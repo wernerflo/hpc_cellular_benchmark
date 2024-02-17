@@ -25,7 +25,9 @@ start_time = get_time()
 for iteration in 1:iterations
     boundary_seq(from_matrix)
     apply_transition_seq_parallel(from_matrix, to_matrix)
-    global from_matrix .= to_matrix
+    temp = from_matrix
+    global from_matrix = to_matrix
+    global to_matrix = temp
 end
 stop_time = get_time()
 
@@ -37,4 +39,4 @@ hash = calculate_md5_hash(from_matrix[2:end-1,:])
 # create output
 println("Computation time: ", computation_time, "s")
 println("Hash-value: ", hash)
-println("Hash-value of baseline: 4604B369CB251400EF4CFB91E9151C7E")
+println("Hash-value of baseline: 9EE1FAB85790251CDCAE0B3160E699C3")
