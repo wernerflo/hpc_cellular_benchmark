@@ -37,6 +37,8 @@ computation_time = measure_time_diff(start_time,stop_time)
 hash = calculate_md5_hash(from_matrix[2:end-1,:])
 
 # create output
+println("lines: ", lines, ", iterations: ", iterations)
 println("Computation time: ", computation_time, "s")
 println("Hash-value: ", hash)
-println("Hash-value of baseline: 9EE1FAB85790251CDCAE0B3160E699C3")
+print("\n")
+

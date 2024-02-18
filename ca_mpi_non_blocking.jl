@@ -146,9 +146,10 @@ if local_rank == 0
     hash_value = calculate_md5_hash(full_matrix)
     computation_time = measure_time_diff(start_time,stop_time)
     #println("Julia")
+    println("lines: ", num_total_lines, ", iterations: ", iterations)
     println("Computation time: ", computation_time, "s")
     println("Hash-value: ", hash_value)
-    println("Hash-value of baseline: 9EE1FAB85790251CDCAE0B3160E699C3")
+    print("\n")
 
 else
     #send local buffer without upper and lower ghost zone
