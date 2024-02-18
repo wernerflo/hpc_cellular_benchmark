@@ -1,7 +1,5 @@
 include("common_functions.jl")
 
-import Base.sleep
-
 using .Common_Functions
 using MPI
 
@@ -37,7 +35,6 @@ end
 
 
 #=---------- main ------------=#
-
 MPI.Init()
 
 comm = MPI.COMM_WORLD
@@ -79,15 +76,19 @@ MPI.Sendrecv!(
 )
 
 # Update ghost zones with received data
-from[1, :] .= recv_buffer_upper_bound.data
-from[num_local_lines + 2, :] .= recv_buffer_lower_bound.data
+from[1, :] = recv_buffer_upper_bound.data
+from[num_local_lines + 2, :] = recv_buffer_lower_bound.data
 
 
 # actual computation starting here
 start_time = get_time()
 for iteration in 1:iterations
+    requests = Vector{MPI.Request}()
+    boundary!(from)
 
-    boundary(from)
+    # Prepost matching receive operation
+    push!(requests, MPI.Irecv!(recv_buffer_upper_bound, prev_proc(local_rank, num_procs), TAG_RECV_UPPER_BOUND, comm))
+    push!(requests, MPI.Irecv!(recv_buffer_lower_bound, succ_proc(local_rank, num_procs), TAG_RECV_LOWER_BOUND, comm))
 
     # Compute boundaries
     apply_transition!(from, to, 2)
@@ -97,31 +98,23 @@ for iteration in 1:iterations
     global send_buffer_upper_bound = MPI.Buffer(to[2,:])
     global send_buffer_lower_bound = MPI.Buffer(to[num_local_lines + 1,:])
 
-    MPI.Sendrecv!(
-        send_buffer_upper_bound,
-        prev_proc(local_rank, num_procs), TAG_SEND_UPPER_BOUND,
-        recv_buffer_lower_bound,
-        succ_proc(local_rank, num_procs), TAG_RECV_LOWER_BOUND,
-        comm
-    )
-
-    MPI.Sendrecv!(
-    send_buffer_lower_bound,
-    succ_proc(local_rank, num_procs), TAG_SEND_LOWER_BOUND,
-    recv_buffer_upper_bound,
-    prev_proc(local_rank, num_procs), TAG_RECV_UPPER_BOUND,
-    comm
-    )
+    # Isend operations
+    push!(requests, MPI.Isend(send_buffer_upper_bound, prev_proc(local_rank, num_procs), TAG_SEND_UPPER_BOUND, comm))
+    push!(requests, MPI.Isend(send_buffer_lower_bound, succ_proc(local_rank, num_procs), TAG_SEND_LOWER_BOUND, comm))
     
     apply_transition!(from, to, 3, num_local_lines)
-    
-    # Update ghost zones with received data
-    to[1, :] = recv_buffer_upper_bound.data
-    to[num_local_lines + 2, :] = recv_buffer_lower_bound.data
 
+    # setting pointers to new locations instead of updating values
     temp = from
     global from = to
     global to = temp
+
+    # Wait for the completion of receive and send operations
+    MPI.Waitall!(requests)
+
+    # Update ghost zones with received data
+    from[1, :] = recv_buffer_upper_bound.data
+    from[num_local_lines + 2, :] = recv_buffer_lower_bound.data
 
 end
 stop_time = get_time()
@@ -130,7 +123,7 @@ MPI.Barrier(comm)
 
 if local_rank == 0
     
-    full_matrix = from[2:num_local_lines+1,:]
+    full_matrix = from[2:end-1,:]
     
     num_remainder_procs = num_total_lines % num_procs
 
@@ -152,19 +145,17 @@ if local_rank == 0
     
     hash_value = calculate_md5_hash(full_matrix)
     computation_time = measure_time_diff(start_time,stop_time)
-
+    println("nb:")
     println("lines: ", num_total_lines, ", iterations: ", iterations)
     println("Computation time: ", computation_time, "s")
     println("Hash-value: ", hash_value)
     print("\n")
-    
-    
+
 else
     #send local buffer without upper and lower ghost zone
     send_buffer_local_matrix = MPI.Buffer(from[2:num_local_lines+1,:])
     MPI.Send(send_buffer_local_matrix, 0, TAG_RESULT, comm)
 
 end
-
 
 MPI.Finalize()

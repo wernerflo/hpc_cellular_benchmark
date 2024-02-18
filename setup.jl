@@ -1,2 +1,2 @@
 using Pkg
-Pkg.add("MPI")
+Pkg.add("DistributedArrays")

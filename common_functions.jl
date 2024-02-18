@@ -5,9 +5,9 @@ using MPI
 using Base.Threads
 
 export get_time, measure_time_diff, nextRandomLEcuyer, randInt, ca_init_config!,
-        calculate_md5_hash, transition, apply_transition_seq, apply_transition!,
-        ca_mpi_init, mpi_calculate_md5_hash, boundary, boundary_seq,
-        apply_transition_seq_parallel
+        calculate_md5_hash, transition, apply_transition_seq!, apply_transition!,
+        ca_mpi_init, mpi_calculate_md5_hash, boundary!, boundary_seq!,
+        apply_transition_seq_parallel!, apply_transition_parallel!
 
 const utility_lib = "./libutility.so" 
 const XSIZE = 1024
@@ -154,7 +154,7 @@ function transition(a::AbstractMatrix, x::Int, y::Int)
 end
 
 
-function boundary(matrix::AbstractMatrix)
+function boundary!(matrix::AbstractMatrix)
 
     # buffer left and right
     matrix[:,1] = matrix[:,end-1]
@@ -162,7 +162,7 @@ function boundary(matrix::AbstractMatrix)
 
 end
 
-function boundary_seq(matrix::AbstractMatrix)
+function boundary_seq!(matrix::AbstractMatrix)
 
     # buffer left and right
     matrix[:,1] = matrix[:,end-1]
@@ -175,7 +175,7 @@ function boundary_seq(matrix::AbstractMatrix)
 end
 
 
-function apply_transition_seq(from_matrix::AbstractMatrix,to_matrix::AbstractMatrix)
+function apply_transition_seq!(from_matrix::AbstractMatrix,to_matrix::AbstractMatrix)
 
     m, n = size(from_matrix)
     for i in 2:m-1
@@ -187,7 +187,7 @@ function apply_transition_seq(from_matrix::AbstractMatrix,to_matrix::AbstractMat
 end
 
 
-function apply_transition_seq_parallel(from_matrix::AbstractMatrix,to_matrix::AbstractMatrix)
+function apply_transition_seq_parallel!(from_matrix::AbstractMatrix,to_matrix::AbstractMatrix)
 
     m, n = size(from_matrix)
     @threads for i in 2:m-1
@@ -212,6 +212,16 @@ function apply_transition!(from_matrix::AbstractMatrix, to_matrix::AbstractMatri
 
     for j in 2:(size(from_matrix, 2)-1)
         to_matrix[start_line, j] = transition(from_matrix, j, start_line)
+    end
+
+end
+
+function apply_transition_parallel!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int, end_line::Int)
+
+    @threads for i in start_line:end_line
+        for j in 2:(size(from_matrix, 2)-1)
+            to_matrix[i, j] = transition(from_matrix, j, i)
+        end
     end
 
 end

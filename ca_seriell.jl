@@ -23,8 +23,8 @@ from_matrix = ca_init_config!(from_matrix, lines, 0)
 # actual computation starting here
 start_time = get_time()
 for iteration in 1:iterations
-    boundary_seq(from_matrix)
-    apply_transition_seq_parallel(from_matrix, to_matrix)
+    boundary_seq!(from_matrix)
+    apply_transition_seq_parallel!(from_matrix, to_matrix)
     temp = from_matrix
     global from_matrix = to_matrix
     global to_matrix = temp

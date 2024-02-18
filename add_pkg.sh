@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=julia_seriell
+#SBATCH --job-name=julia_add_Pkg
 #SBATCH --output=%x.%j
 #SBATCH --error=err.%x.%j
 #SBATCH --nodes=1 # number of nodes
