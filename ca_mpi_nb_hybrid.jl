@@ -2,6 +2,7 @@ include("common_functions.jl")
 
 using .Common_Functions
 using MPI
+using SharedArrays
 
 # check if Arguments are set correct
 if length(ARGS) != 2
@@ -43,12 +44,11 @@ num_procs = MPI.Comm_size(comm)
 
 num_local_lines, num_skip_lines = ca_mpi_init(num_procs, local_rank, num_total_lines)
 
-from = zeros(UInt8, num_local_lines + 2, LINESIZE)
-to = zeros(UInt8, num_local_lines + 2, LINESIZE)
+from = SharedArray{UInt8}((num_local_lines + 2, LINESIZE))
+to = SharedArray{UInt8}((num_local_lines + 2, LINESIZE))
 
-# Initialize from matrix (replace with your actual initialization logic)
-from = ca_init_config!(from, num_local_lines, num_skip_lines)
-
+# Initialize from matrix 
+ca_init_config!(from, num_local_lines, num_skip_lines)
 
 # fill send buffer
 send_buffer_upper_bound = MPI.Buffer(from[2,:])
@@ -76,8 +76,8 @@ MPI.Sendrecv!(
 )
 
 # Update ghost zones with received data
-from[1, :] = recv_buffer_upper_bound.data
-from[num_local_lines + 2, :] = recv_buffer_lower_bound.data
+from[1, :] .= recv_buffer_upper_bound.data
+from[num_local_lines + 2, :] .= recv_buffer_lower_bound.data
 
 
 # actual computation starting here

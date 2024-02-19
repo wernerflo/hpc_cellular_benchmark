@@ -43,7 +43,7 @@ function randInt(n)
 end
 
 
-function ca_init_config!(buf::Matrix{UInt8}, lines::Int, skip_lines::Int)
+function ca_init_config!(buf::AbstractMatrix, lines::Int, skip_lines::Int)
     ccall(("initRandomLEcuyer", utility_lib), Cvoid, (Cint,), 424243)
 
     scratch = 0
@@ -63,7 +63,6 @@ function ca_init_config!(buf::Matrix{UInt8}, lines::Int, skip_lines::Int)
         end
     end
 
-    return buf
 end
 
 

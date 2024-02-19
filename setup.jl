@@ -1,2 +1,2 @@
 using Pkg
-Pkg.add("DistributedArrays")
+Pkg.add("SharedArrays")

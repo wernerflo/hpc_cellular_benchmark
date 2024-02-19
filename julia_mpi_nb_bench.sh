@@ -4,7 +4,7 @@
 #SBATCH --error=./outputs/err.%x.%j
 #SBATCH --nodes=4 # number of nodes
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=4 
+#SBATCH --cpus-per-task=4
 #SBATCH --exclusive
 #SBATCH --time=00:10:00 # walltime
 

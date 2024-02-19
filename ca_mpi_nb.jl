@@ -47,8 +47,7 @@ from = zeros(UInt8, num_local_lines + 2, LINESIZE)
 to = zeros(UInt8, num_local_lines + 2, LINESIZE)
 
 # Initialize from matrix (replace with your actual initialization logic)
-from = ca_init_config!(from, num_local_lines, num_skip_lines)
-
+ca_init_config!(from, num_local_lines, num_skip_lines)
 
 # fill send buffer
 send_buffer_upper_bound = MPI.Buffer(from[2,:])
