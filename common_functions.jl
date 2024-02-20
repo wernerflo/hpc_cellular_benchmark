@@ -14,6 +14,7 @@ const XSIZE = 1024
 const LINESIZE = XSIZE + 2
 const anneal = [0, 0, 0, 0, 1, 0, 1, 1, 1, 1]
 
+
 #=---------- time measurement ------------=#
 # Define timespec struct in Julia
 struct timespec
@@ -30,6 +31,7 @@ end
 function measure_time_diff(timer1::timespec, timer2::timespec)::Cdouble
     return ccall(("measure_time_diff", utility_lib), Cdouble, (Ptr{timespec}, Ptr{timespec}), Ref(timer1), Ref(timer2))
 end
+
 
 
 #=---------- initialization of ca ------------=#
@@ -66,6 +68,7 @@ function ca_init_config!(buf::AbstractMatrix, lines::Int, skip_lines::Int)
 end
 
 
+
 #=---------- calculate local lines and get first global line for MPI ------------=#
 function ca_mpi_init(num_procs::Int, rank::Int, num_total_lines::Int)
     num_local_lines = div(num_total_lines, num_procs)
@@ -82,6 +85,7 @@ function ca_mpi_init(num_procs::Int, rank::Int, num_total_lines::Int)
 
     return num_local_lines, global_first_line
 end
+
 
 
 #=---------- compute md5-hash for ca ------------=#
@@ -108,51 +112,8 @@ function calculate_md5_hash(matrix::AbstractMatrix)
     return hash_string
 end
 
-const TAG_RESULT = 0xCAFE
 
-function mpi_calculate_md5_hash(local_buf::AbstractMatrix, num_procs::Int)
-    comm = MPI.COMM_WORLD
-    rank = MPI.Comm_rank
-
-    if rank == 0
-        # building full matrix from all local buffers --> no issues with column major order
-        result_matrix = local_buf
-        print(local_buf)
-        # collecting all local buffers and concatenating with already received data
-        for i in 1:(num_procs-1)
-            sent_buf = MPI.Recv(comm, i, TAG_RESULT)
-
-            # Overwrite lower ghost zone with the first row of sent buffer
-            result_matrix[end, :] .= matrix2[1, :]
-
-            # Concatenate the rest
-            result_matrix = vcat(result_matrix, sent_buf[2:end, :])
-        end
-        
-        print(result_matrix)
-        hash = calculate_md5_hash(result_matrix)
-        return hash
-
-        
-
-    else
-        #send local buffer
-        MPI.Send(local_buf, 0, TAG_RESULT, comm)
-
-    end
-
-
-end
-
-
-#=---------- computation step for each iteration ------------=#
-function transition(a::AbstractMatrix, x::Int, y::Int)
-    return anneal[a[y-1, x-1] + a[y, x-1] + a[y+1, x-1] +
-                  a[y-1, x]   + a[y, x  ] + a[y+1, x  ] +
-                  a[y-1, x+1] + a[y, x+1] + a[y+1, x+1] + 1]
-end
-
-
+#=---------- computation of local ghost zones ------------=#
 function boundary!(matrix::AbstractMatrix)
 
     # buffer left and right
@@ -161,6 +122,7 @@ function boundary!(matrix::AbstractMatrix)
 
 end
 
+# only for serial computation
 function boundary_seq!(matrix::AbstractMatrix)
 
     # buffer left and right
@@ -174,7 +136,17 @@ function boundary_seq!(matrix::AbstractMatrix)
 end
 
 
-function apply_transition_seq!(from_matrix::AbstractMatrix,to_matrix::AbstractMatrix)
+
+#=---------- computation step for each iteration ------------=#
+function transition(a::AbstractMatrix, x::Int, y::Int)
+    return anneal[a[y-1, x-1] + a[y, x-1] + a[y+1, x-1] +
+                  a[y-1, x]   + a[y, x  ] + a[y+1, x  ] +
+                  a[y-1, x+1] + a[y, x+1] + a[y+1, x+1] + 1]
+end
+
+
+# only for serial computation
+function apply_transition_seq!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix)
 
     m, n = size(from_matrix)
     for i in 2:m-1
@@ -185,8 +157,8 @@ function apply_transition_seq!(from_matrix::AbstractMatrix,to_matrix::AbstractMa
 
 end
 
-
-function apply_transition_seq_parallel!(from_matrix::AbstractMatrix,to_matrix::AbstractMatrix)
+# only for multithreaded serial computation
+function apply_transition_seq_parallel!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix)
 
     m, n = size(from_matrix)
     @threads for i in 2:m-1
@@ -196,6 +168,7 @@ function apply_transition_seq_parallel!(from_matrix::AbstractMatrix,to_matrix::A
     end
 
 end
+
 
 function apply_transition!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int, end_line::Int)
 
@@ -207,6 +180,7 @@ function apply_transition!(from_matrix::AbstractMatrix, to_matrix::AbstractMatri
 
 end
 
+
 function apply_transition!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int)
 
     for j in 2:(size(from_matrix, 2)-1)
@@ -215,6 +189,8 @@ function apply_transition!(from_matrix::AbstractMatrix, to_matrix::AbstractMatri
 
 end
 
+
+# multithreaded version
 function apply_transition_parallel!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int, end_line::Int)
 
     @threads for i in start_line:end_line
