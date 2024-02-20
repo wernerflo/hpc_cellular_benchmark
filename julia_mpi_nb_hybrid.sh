@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=julia_mpi_nb
+#SBATCH --job-name=julia_mpi_nb_hybrid
 #SBATCH --output=./outputs/%x.%j
 #SBATCH --error=./outputs/err.%x.%j
 #SBATCH --nodes=4 # number of nodes
@@ -14,4 +14,4 @@ module load openmpi
 
 JULIA_PATH=~/julia-1.5.3/bin
 
-mpiexec -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi_nb.jl 50000 521
+mpiexec -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi_nb_hybrid.jl 50000 521

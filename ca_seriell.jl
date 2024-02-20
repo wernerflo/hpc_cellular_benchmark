@@ -18,7 +18,7 @@ iterations = parse(Int, ARGS[2])
 
 from_matrix = zeros(UInt8, lines+2, XSIZE+2)
 to_matrix = zeros(UInt8, lines+2, XSIZE+2)
-from_matrix = ca_init_config!(from_matrix, lines, 0)
+ca_init_config!(from_matrix, lines, 0)
 
 # actual computation starting here
 start_time = get_time()

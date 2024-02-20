@@ -26,11 +26,11 @@ num_total_lines = parse(Int, ARGS[1])
 iterations = parse(Int, ARGS[2])
 
 
-function prev_proc(n, num_procs)
+function prev_proc(n::Int, num_procs::Int)
     return (n - 1 + num_procs) % num_procs
 end
 
-function succ_proc(n, num_procs)
+function succ_proc(n::Int, num_procs::Int)
     return (n + 1) % num_procs
 end
 
@@ -44,8 +44,8 @@ num_procs = MPI.Comm_size(comm)
 
 num_local_lines, num_skip_lines = ca_mpi_init(num_procs, local_rank, num_total_lines)
 
-from = SharedArray{UInt8}((num_local_lines + 2, LINESIZE))
-to = SharedArray{UInt8}((num_local_lines + 2, LINESIZE))
+from = zeros(UInt8,num_local_lines + 2, LINESIZE)
+to = zeros(UInt8,num_local_lines + 2, LINESIZE)
 
 # Initialize from matrix 
 ca_init_config!(from, num_local_lines, num_skip_lines)
@@ -113,8 +113,8 @@ for iteration in 1:iterations
     MPI.Waitall!(requests)
 
     # Update ghost zones with received data
-    from[1, :] = recv_buffer_upper_bound.data
-    from[num_local_lines + 2, :] = recv_buffer_lower_bound.data
+    from[1, :] .= recv_buffer_upper_bound.data
+    from[num_local_lines + 2, :] .= recv_buffer_lower_bound.data
 
 end
 stop_time = get_time()

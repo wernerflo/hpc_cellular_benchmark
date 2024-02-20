@@ -105,18 +105,18 @@ for iteration in 1:iterations
     )
 
     MPI.Sendrecv!(
-    send_buffer_lower_bound,
-    succ_proc(local_rank, num_procs), TAG_SEND_LOWER_BOUND,
-    recv_buffer_upper_bound,
-    prev_proc(local_rank, num_procs), TAG_RECV_UPPER_BOUND,
-    comm
+        send_buffer_lower_bound,
+        succ_proc(local_rank, num_procs), TAG_SEND_LOWER_BOUND,
+        recv_buffer_upper_bound,
+        prev_proc(local_rank, num_procs), TAG_RECV_UPPER_BOUND,
+        comm
     )
     
     apply_transition!(from, to, 3, num_local_lines)
     
     # Update ghost zones with received data
-    to[1, :] = recv_buffer_upper_bound.data
-    to[num_local_lines + 2, :] = recv_buffer_lower_bound.data
+    to[1, :] .= recv_buffer_upper_bound.data
+    to[num_local_lines + 2, :] .= recv_buffer_lower_bound.data
 
     temp = from
     global from = to
@@ -152,6 +152,7 @@ if local_rank == 0
     hash_value = calculate_md5_hash(full_matrix)
     computation_time = measure_time_diff(start_time,stop_time)
 
+    println("blocking")
     println("lines: ", num_total_lines, ", iterations: ", iterations)
     println("Computation time: ", computation_time, "s")
     println("Hash-value: ", hash_value)
