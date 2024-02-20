@@ -170,6 +170,7 @@ function apply_transition_seq_parallel!(from_matrix::AbstractMatrix, to_matrix::
 end
 
 
+# compute multiple lines
 function apply_transition!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int, end_line::Int)
 
     for i in start_line:end_line
@@ -180,7 +181,7 @@ function apply_transition!(from_matrix::AbstractMatrix, to_matrix::AbstractMatri
 
 end
 
-
+# compute a single line
 function apply_transition!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int)
 
     for j in 2:(size(from_matrix, 2)-1)
