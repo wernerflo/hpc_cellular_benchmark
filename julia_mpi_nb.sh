@@ -14,4 +14,4 @@ module load openmpi
 
 JULIA_PATH=~/julia-1.5.3/bin
 
-mpiexec -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi_nb.jl 50000 521
+mpiexec -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi_nb.jl 50000 512
