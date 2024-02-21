@@ -23,19 +23,19 @@ struct timespec
 end
 
 # Get all necessary c_functions
-function get_time()::timespec
+function get_time()
     return ccall(("get_time", utility_lib), timespec, ())
 end
 
 
-function measure_time_diff(timer1::timespec, timer2::timespec)::Cdouble
+function measure_time_diff(timer1::timespec, timer2::timespec)
     return ccall(("measure_time_diff", utility_lib), Cdouble, (Ptr{timespec}, Ptr{timespec}), Ref(timer1), Ref(timer2))
 end
 
 
 
 #=---------- initialization of ca ------------=#
-function nextRandomLEcuyer()::Float64
+function nextRandomLEcuyer()
     return ccall(("nextRandomLEcuyer", utility_lib), Float64, ())
 end
 
@@ -113,6 +113,7 @@ function calculate_md5_hash(matrix::AbstractMatrix)
 end
 
 
+
 #=---------- computation of local ghost zones ------------=#
 function boundary!(matrix::AbstractMatrix)
 
@@ -121,6 +122,7 @@ function boundary!(matrix::AbstractMatrix)
     matrix[:,end] = matrix[:,2]
 
 end
+
 
 # only for serial computation
 function boundary_seq!(matrix::AbstractMatrix)
@@ -157,6 +159,7 @@ function apply_transition_seq!(from_matrix::AbstractMatrix, to_matrix::AbstractM
 
 end
 
+
 # only for multithreaded serial computation
 function apply_transition_seq_parallel!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix)
 
@@ -180,6 +183,7 @@ function apply_transition!(from_matrix::AbstractMatrix, to_matrix::AbstractMatri
     end
 
 end
+
 
 # compute a single line
 function apply_transition!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int)
