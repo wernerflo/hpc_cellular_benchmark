@@ -13,5 +13,7 @@ module purge
 module load openmpi
 
 JULIA_PATH=~/julia-1.5.3/bin
+export JULIA_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
 mpiexec -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi_nb_hybrid.jl 50000 512
+#mpiexec -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_transposed_nb_hybrid.jl 50000 512

@@ -7,7 +7,8 @@ using Base.Threads
 export get_time, measure_time_diff, nextRandomLEcuyer, randInt, ca_init_config!,
         calculate_md5_hash, transition, apply_transition_seq!, apply_transition!,
         ca_mpi_init, mpi_calculate_md5_hash, boundary!, boundary_seq!,
-        apply_transition_seq_parallel!, apply_transition_parallel!
+        apply_transition_seq_parallel!, apply_transition_parallel!,
+        apply_transition_parallel_by_element!
 
 const utility_lib = "./libutility.so" 
 const XSIZE = 1024
@@ -142,7 +143,7 @@ end
 #=---------- computation step for each iteration ------------=#
 function transition(a::AbstractMatrix, x::Int, y::Int)
     return anneal[a[y-1, x-1] + a[y, x-1] + a[y+1, x-1] +
-                  a[y-1, x]   + a[y, x  ] + a[y+1, x  ] +
+                  a[y-1, x  ] + a[y, x  ] + a[y+1, x  ] +
                   a[y-1, x+1] + a[y, x+1] + a[y+1, x+1] + 1]
 end
 
@@ -151,8 +152,8 @@ end
 function apply_transition_seq!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix)
 
     m, n = size(from_matrix)
-    for i in 2:m-1
-        for j in 2:n-1
+    for j in 2:n-1
+        for i in 2:m-1
             to_matrix[i, j] = transition(from_matrix, j, i)
         end
     end
@@ -164,8 +165,8 @@ end
 function apply_transition_seq_parallel!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix)
 
     m, n = size(from_matrix)
-    @threads for i in 2:m-1
-        for j in 2:n-1
+    @threads for j in 2:n-1
+        for i in 2:m-1
             to_matrix[i, j] = transition(from_matrix, j, i)
         end
     end
@@ -176,8 +177,8 @@ end
 # compute multiple lines
 function apply_transition!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int, end_line::Int)
 
-    for i in start_line:end_line
-        for j in 2:(size(from_matrix, 2)-1)
+    for j in 2:(size(from_matrix, 2)-1)
+        for i in start_line:end_line
             to_matrix[i, j] = transition(from_matrix, j, i)
         end
     end
@@ -198,12 +199,39 @@ end
 # multithreaded version
 function apply_transition_parallel!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int, end_line::Int)
 
-    @threads for i in start_line:end_line
-        for j in 2:(size(from_matrix, 2)-1)
+    @threads for j in 2:(size(from_matrix, 2)-1)
+        for i in start_line:end_line
             to_matrix[i, j] = transition(from_matrix, j, i)
         end
     end
 
 end
+
+
+# thinking of a workaround to implement something similar to omp collapse
+# --> need to create sort of a queue filled with all indeces
+#     each thread can access this queue and pops an element till queue is empty
+#=
+function apply_transition_parallel_by_element!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int, end_line::Int)
+
+    nrows, ncols = size(from_matrix)
+
+    # Create an array to hold indices of matrix elements
+    indices = [(i, j) for i in start_line:end_line for j in 2:ncols-1]
+    # Create an atomic counter to track index access
+    atomic_counter = Threads.Atomic{Int}(length(indices))
+
+    @threads for _ in 1:nthreads()
+        while true 
+            idx = Threads.atomic_sub!(atomic_counter, 1)
+            if idx <= 0
+                break
+            end
+            i, j = indices[idx]
+            to_matrix[i, j] = transition(from_matrix, j, i)
+        end
+    end
+end 
+=#
 
 end

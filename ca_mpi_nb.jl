@@ -121,6 +121,7 @@ stop_time = get_time()
 
 MPI.Barrier(comm)
 
+# collect all data on rank 0
 if local_rank == 0
     
     full_matrix = from[2:end-1,:]

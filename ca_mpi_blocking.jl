@@ -1,7 +1,5 @@
 include("common_functions.jl")
 
-import Base.sleep
-
 using .Common_Functions
 using MPI
 
@@ -37,7 +35,6 @@ end
 
 
 #=---------- main ------------=#
-
 MPI.Init()
 
 comm = MPI.COMM_WORLD
