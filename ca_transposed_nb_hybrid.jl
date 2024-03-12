@@ -51,9 +51,9 @@ function apply_transition_line!(from_matrix::AbstractMatrix, to_matrix::Abstract
 
 end
 
-function apply_transition_parallel!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int, end_line::Int)
+function apply_transition_parallel!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_col::Int, end_col::Int)
 
-    @threads for j in start_line:end_line
+    @threads for j in start_col:end_col
         for i in 2:(size(from_matrix, 1)-1)
             to_matrix[i, j] = transition(from_matrix, j, i)
         end
@@ -80,6 +80,8 @@ function calculate_md5_hash(matrix::AbstractMatrix)
 
     return hash_string
 end
+
+
 #=---------- main ------------=#
 MPI.Init()
 
@@ -95,8 +97,6 @@ to = zeros(UInt8, LINESIZE, num_local_lines + 2)
 # Initialize from matrix 
 ca_init_config!(from, num_local_lines, num_skip_lines)
 from = transpose(from)
-#print(size(from))
-#print(size(to))
 
 # fill send buffer
 send_buffer_upper_bound = MPI.Buffer(from[:,2])
