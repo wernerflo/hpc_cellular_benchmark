@@ -1,4 +1,4 @@
-module Common_Functions
+module CaMpi
 
 using MD5
 using MPI
@@ -36,6 +36,7 @@ end
 
 
 #=---------- initialization of ca ------------=#
+
 function nextRandomLEcuyer()
     return ccall(("nextRandomLEcuyer", utility_lib), Float64, ())
 end
@@ -206,32 +207,5 @@ function apply_transition_parallel!(from_matrix::AbstractMatrix, to_matrix::Abst
     end
 
 end
-
-
-# thinking of a workaround to implement something similar to omp collapse
-# --> need to create sort of a queue filled with all indeces
-#     each thread can access this queue and pops an element till queue is empty
-#=
-function apply_transition_parallel_by_element!(from_matrix::AbstractMatrix, to_matrix::AbstractMatrix, start_line::Int, end_line::Int)
-
-    nrows, ncols = size(from_matrix)
-
-    # Create an array to hold indices of matrix elements
-    indices = [(i, j) for i in start_line:end_line for j in 2:ncols-1]
-    # Create an atomic counter to track index access
-    atomic_counter = Threads.Atomic{Int}(length(indices))
-
-    @threads for _ in 1:nthreads()
-        while true 
-            idx = Threads.atomic_sub!(atomic_counter, 1)
-            if idx <= 0
-                break
-            end
-            i, j = indices[idx]
-            to_matrix[i, j] = transition(from_matrix, j, i)
-        end
-    end
-end 
-=#
 
 end

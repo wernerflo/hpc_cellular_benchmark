@@ -1,6 +1,6 @@
-include("common_functions.jl")
+include("ca_mpi.jl")
 
-using .Common_Functions
+using .CaMpi
 using MPI
 
 # check if Arguments are set correct
