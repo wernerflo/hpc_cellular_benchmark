@@ -3,6 +3,7 @@
 #SBATCH --nodes=1 # number of nodes
 #SBATCH --ntasks-per-node=1
 #SBATCH --exclusive
+#SBATCH --walltime=02:00:00
 
 set -e
 module purge
