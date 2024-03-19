@@ -15,5 +15,6 @@ module load openmpi
 JULIA_PATH=~/julia-1.5.3/bin
 export JULIA_NUM_THREADS=$SLURM_CPUS_PER_TASK
 
-srun -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi_nb_hybrid.jl 50000 512 nb_parallel
-
+#srun -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi_nb_hybrid.jl 50000 512 nb_parallel
+#srun -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi_nb_hybrid.jl 50000 512 nb_sequential
+srun -n $SLURM_NPROCS $JULIA_PATH/julia ./julia_ca_mpi.jl 50000 512 blocking
