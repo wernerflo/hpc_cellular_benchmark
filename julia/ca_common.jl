@@ -2,7 +2,7 @@ module CaCommon
 
 export CellularAutomaton, timespec, get_time, measure_time_diff, prev_proc, succ_proc
 
-const utility_lib = "./libutility.so" 
+const utility_lib = "./julia/libutility.so" 
 
 const XSIZE = 1024
 const LINESIZE = XSIZE + 2

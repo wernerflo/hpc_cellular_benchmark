@@ -1,6 +1,12 @@
+include("ca_init.jl")
+include("ca_calculations.jl")
+include("ca_report.jl")
 
-include("julia_ca_mpi.jl")
+using .CaInit
+using .CaCalculations
+using .CaReport
 
+using MPI
 @enum ExecutionMode begin
     nb_parallel
     nb_sequential
@@ -40,18 +46,12 @@ computation_times = []
 
 MPI.Init()
 for i in 1:(5+1)
-    if i == 1
-        println("warm-up\n")
-    else
-        println("running benchmark nr: ", i-1)
-    end
-
-    cellularAutomata, recv_buffer_lower_bound, recv_buffer_upper_bound = init(num_total_lines, iterations)
-    start_time, stop_time = calculate_handler!(cellularAutomata, recv_buffer_lower_bound, recv_buffer_upper_bound)
+    cellularAutomata, recv_buffer_lower_bound, recv_buffer_upper_bound = initialize_ca(num_total_lines, iterations)
+    start_time, stop_time = calculate_handler!(cellularAutomata, recv_buffer_lower_bound, recv_buffer_upper_bound, iterations)
     MPI.Barrier(cellularAutomata.comm)
     full_matrix = construct_full_matrix(cellularAutomata, num_total_lines)
     if cellularAutomata.rank == 0
-        computation_time, hash_value = hash_and_report(start_time, stop_time, cellularAutomata, full_matrix, num_total_lines)
+        computation_time, hash_value = hash_and_report(start_time, stop_time, full_matrix)
         append!(computation_times,computation_time)
     end
 end

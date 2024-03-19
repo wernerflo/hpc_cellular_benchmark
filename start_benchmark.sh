@@ -30,8 +30,8 @@ for nodes in "${node_allocations[@]}"; do
     sbatch --nodes=$nodes --ntasks-per-node=1 --cpus-per-task=1 --job-name=experiment3_$nodes --output=./benchmarks/experiment_3/Baseline/1_Task/nodes_$nodes.%j --error=./errors/experiment_3/baseline_err.1TaskNodes_$nodes.%j --exclusive experiment_3_baseline.sh $nodes
 
 
-    sbatch --nodes=$nodes --ntasks-per-node=24 --cpus-per-task=1 --job-name=experiment3_$nodes --output=./benchmarks/experiment_3/Julia/24_Tasks/nodes_$nodes.%j --error=./errors/experiment_3/julia_err.24TasksNodes_$nodes.%j --exclusive experiment_3.sh $nodes
-    sbatch --nodes=$nodes --ntasks-per-node=24 --cpus-per-task=1 --job-name=experiment3_$nodes --output=./benchmarks/experiment_3/Baseline/24_Tasks/nodes_$nodes.%j --error=./errors/experiment_3/baseline_err.24TasksNodes_$nodes.%j --exclusive experiment_3.sh $nodes
+    sbatch --nodes=$nodes --ntasks-per-node=24 --cpus-per-task=1 --job-name=experiment3_$nodes --output=./benchmarks/experiment_3/Julia/24_Tasks/nodes_$nodes.%j --error=./errors/experiment_3/julia_err.24TasksNodes_$nodes.%j --exclusive experiment_3_julia.sh $nodes
+    sbatch --nodes=$nodes --ntasks-per-node=24 --cpus-per-task=1 --job-name=experiment3_$nodes --output=./benchmarks/experiment_3/Baseline/24_Tasks/nodes_$nodes.%j --error=./errors/experiment_3/baseline_err.24TasksNodes_$nodes.%j --exclusive experiment_3_baseline.sh $nodes
 
 done
 
@@ -40,11 +40,11 @@ done
 node_allocations=(1 2 3 4)
 
 for nodes in "${node_allocations[@]}"; do
-    sbatch --nodes=$nodes --ntasks-per-node=1 --cpus-per-task=1 --job-name=experiment4_$nodes --output=./benchmarks/experiment_4/Julia/1_Task/nodes_$nodes.%j --error=./errors/experiment_3/julia_err.1TaskNodes_$nodes.%j --exclusive experiment_3.sh $nodes
-    sbatch --nodes=$nodes --ntasks-per-node=1 --cpus-per-task=1 --job-name=experiment4_$nodes --output=./benchmarks/experiment_4/Baseline/1_Task/nodes_$nodes.%j --error=./errors/experiment_3/baseline_err.1TaskNodes_$nodes.%j --exclusive experiment_3.sh $nodes
+    sbatch --nodes=$nodes --ntasks-per-node=1 --cpus-per-task=1 --job-name=experiment4_$nodes --output=./benchmarks/experiment_4/Julia/1_Task/nodes_$nodes.%j --error=./errors/experiment_3/julia_err.1TaskNodes_$nodes.%j --exclusive experiment_3_julia.sh $nodes
+    sbatch --nodes=$nodes --ntasks-per-node=1 --cpus-per-task=1 --job-name=experiment4_$nodes --output=./benchmarks/experiment_4/Baseline/1_Task/nodes_$nodes.%j --error=./errors/experiment_3/baseline_err.1TaskNodes_$nodes.%j --exclusive experiment_3_baseline.sh $nodes
 
 
-    sbatch --nodes=$nodes --ntasks-per-node=24 --cpus-per-task=1 --job-name=experiment4_$nodes --output=./benchmarks/experiment_4/Julia/24_Tasks/nodes_$nodes.%j --error=./errors/experiment_3/julia_err.24TasksNodes_$nodes.%j --exclusive experiment_3.sh $nodes
-    sbatch --nodes=$nodes --ntasks-per-node=24 --cpus-per-task=1 --job-name=experiment4_$nodes --output=./benchmarks/experiment_4/Baseline/24_Tasks/nodes_$nodes.%j --error=./errors/experiment_3/baseline_err.24TasksNodes_$nodes.%j --exclusive experiment_3.sh $nodes
+    sbatch --nodes=$nodes --ntasks-per-node=24 --cpus-per-task=1 --job-name=experiment4_$nodes --output=./benchmarks/experiment_4/Julia/24_Tasks/nodes_$nodes.%j --error=./errors/experiment_3/julia_err.24TasksNodes_$nodes.%j --exclusive experiment_3_julia.sh $nodes
+    sbatch --nodes=$nodes --ntasks-per-node=24 --cpus-per-task=1 --job-name=experiment4_$nodes --output=./benchmarks/experiment_4/Baseline/24_Tasks/nodes_$nodes.%j --error=./errors/experiment_3/baseline_err.24TasksNodes_$nodes.%j --exclusive experiment_3_baseline.sh $nodes
 
 done

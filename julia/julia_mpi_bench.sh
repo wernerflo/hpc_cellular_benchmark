@@ -18,8 +18,5 @@ export JULIA_NUM_THREADS=$SLURM_CPUS_PER_TASK
 for iterations in 128 256 512; do
     for lines in 1000 10000 50000; do
         mpiexec -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi_blocking.jl $lines $iterations
-        mpiexec -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi_nb.jl $lines $iterations
-        mpiexec -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_mpi_nb_hybrid.jl $lines $iterations
-        mpiexec -n $SLURM_NPROCS $JULIA_PATH/julia ./ca_transposed_nb_hybrid.jl $lines $iterations
     done
 done
