@@ -7,6 +7,9 @@ using .CaCalculations
 using .CaReport
 
 using MPI
+using Profile
+
+
 @enum ExecutionMode begin
     nb_parallel
     nb_sequential
@@ -38,35 +41,21 @@ function get_calculate_handler(execution_mode)
 end
 
 
-calculate_handler! = get_calculate_handler(execution_mode)
-
-
-num_runs = 5
-computation_times = []
-
-MPI.Init()
-for i in 1:(num_runs+1)
+function main(lines, iterations, calculate_handler!)
+    MPI.Init()
     cellularAutomata, recv_buffer_lower_bound, recv_buffer_upper_bound = initialize_ca(num_total_lines, iterations)
     start_time, stop_time = calculate_handler!(cellularAutomata, recv_buffer_lower_bound, recv_buffer_upper_bound, iterations)
     MPI.Barrier(cellularAutomata.comm)
     full_matrix = construct_full_matrix(cellularAutomata, num_total_lines)
     if cellularAutomata.rank == 0
         computation_time, hash_value = hash_and_report(start_time, stop_time, full_matrix)
-        append!(computation_times,computation_time)
-        if i == num_runs+1
-            println("Lines: ", num_total_lines, ", Iterations: ", iterations)
-        end
     end
+    MPI.Finalize()
 end
 
-MPI.Finalize()
+calculate_handler! = get_calculate_handler(execution_mode)
 
 
-for t in 1:length(computation_times)
-    if t == 1
-        println("Warm-up:  ", computation_times[t])
-    else
-        println("Run ", t-1,":  ", computation_times[t])
-    end
-end
-
+@profile main(num_total_lines, iterations, calculate_handler!)
+main(num_total_lines, iterations, calculate_handler!)
+Profile.print()

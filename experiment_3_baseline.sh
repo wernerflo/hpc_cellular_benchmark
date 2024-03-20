@@ -5,10 +5,7 @@ set -e
 module purge
 module load openmpi
 
-export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
-
 num_runs=5
-
 
 for iterations in 128 256 512; do
     for lines in 1000 10000 50000; do
